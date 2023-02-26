@@ -1,5 +1,5 @@
 const pool = require('../utils/db.js')
-const { UserModel, CourseModel } = require('../models/Models.js')
+const { UserModel, CourseModel, UserCourse } = require('../models/Models.js')
 
 const getUsers = async (req, res) => {
     try {
@@ -149,6 +149,18 @@ const deleteUserFromCourse = async (req, res) => {
         if (!user) {
             return res.json({
                 message: 'User is not found',
+            })
+        }
+        const isExists = await UserCourse.findOne({
+            where: {
+                userId,
+                courseId,
+            },
+        })
+
+        if (!isExists) {
+            return res.json({
+                message: ' Такой пользователь не существует в курсе',
             })
         }
         await course.removeUser(user)

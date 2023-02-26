@@ -62,7 +62,7 @@ const QuestionModel = sequelize.define('questions', {
     },
 })
 
-const VideoModel = sequelize.define('VideoModel', {
+const VideoModel = sequelize.define('videos', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -91,4 +91,10 @@ VideoModel.belongsTo(CourseModel)
 VideoModel.hasMany(QuestionModel)
 QuestionModel.belongsTo(VideoModel)
 
-module.exports = { CourseModel, UserCourse, UserModel, QuestionModel }
+module.exports = {
+    CourseModel,
+    UserCourse,
+    UserModel,
+    QuestionModel,
+    VideoModel,
+}

@@ -1,10 +1,14 @@
-const { CourseModel } = require('../models/Models.js')
+const {
+    VideoModel,
+    CourseModel,
+    UserModel,
+    UserCourse,
+} = require('../models/Models')
 
 const getAllCourses = async (req, res) => {
     try {
         const courses = await CourseModel.findAll()
 
-        console.log(courses)
         if (!courses) {
             res.json({ message: 'Курсов пока нету' })
         }
@@ -54,4 +58,21 @@ const deleteCourse = async (req, res) => {
     }
 }
 
-module.exports = { getAllCourses, createCourse, deleteCourse }
+const getUsersByCourse = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const course = await CourseModel.findOne({
+            where: {
+                id,
+            },
+        })
+
+        const users = await course.getUsers()
+        return res.json(users)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+module.exports = { getAllCourses, createCourse, deleteCourse, getUsersByCourse }

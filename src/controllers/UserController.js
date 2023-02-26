@@ -1,4 +1,4 @@
-const { UserModel } = require('../models/Models.js')
+const { UserModel, UserCourse } = require('../models/Models.js')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
@@ -38,8 +38,7 @@ const loginUser = async (req, res) => {
 const getUserCourses = async (req, res) => {
     try {
         const id = req.user.id
-        console.log(req.user)
-        
+
         const user = await UserModel.findOne({
             where: {
                 id,
@@ -51,10 +50,9 @@ const getUserCourses = async (req, res) => {
                 code: 401,
             })
         }
-        const userCourses = await user.getCourseModels()
+        const userCourses = await user.getCourses()
         return res.json({
             userCourses,
-            req
         })
     } catch (error) {
         console.log(error)
