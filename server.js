@@ -6,6 +6,10 @@ const sequelize = require('./src/utils/db.js')
 const cors = require('cors')
 const port = 8000
 
+const {
+    getGoogleAuthToken,
+} = require('./src/controllers/VideoHostController.js')
+
 const app = express()
 
 app.get('/', (req, res) => {
@@ -24,4 +28,5 @@ app.use('/api/course', CourseRoutes)
 //     console.log('Tables have been created')
 // })()
 
+app.get('/google/callback', getGoogleAuthToken)
 app.listen(port, () => console.log('App started'))

@@ -1,6 +1,8 @@
 const pool = require('../utils/db.js')
 const { UserModel, CourseModel, UserCourse } = require('../models/Models.js')
 
+const storage = require('./VideoController.js')
+
 const getUsers = async (req, res) => {
     try {
         const users = await UserModel.findAll()
@@ -9,7 +11,7 @@ const getUsers = async (req, res) => {
                 message: 'В базе данных не пользвателей',
             })
         }
-        res.send(users)
+        res.json({users})
     } catch (error) {
         res.json({
             message: 'Ошибка',
@@ -75,7 +77,7 @@ const deleteUser = async (req, res) => {
             },
         })
 
-        res.json('Успешно удалено!')
+        res.json({ message: 'Успешно удалено!' })
     } catch (error) {
         res.json({
             message: 'Ошибка при удалении',
@@ -100,7 +102,7 @@ const addUserToCourse = async (req, res) => {
         })
         if (!course) {
             return res.json({
-                message: 'Course is not found',
+                message: 'Курс не найден',
             })
         }
         const user = await UserModel.findOne({
@@ -110,12 +112,19 @@ const addUserToCourse = async (req, res) => {
         })
         if (!user) {
             return res.json({
-                message: 'User is not found',
+                message: 'Пользователь не найден',
             })
+        }
+        const isUserExists = await UserCourse.findOne({
+            where: { userId, courseId },
+        })
+        if (isUserExists) {
+            return res.json({ message: 'Пользовател уже существует' })
         }
         await course.addUser(user)
         return res.json({
-            message: 'Succesfully added',
+            message: 'Успешно добавлено',
+            user
         })
     } catch (error) {
         console.log(error)
@@ -165,7 +174,7 @@ const deleteUserFromCourse = async (req, res) => {
         }
         await course.removeUser(user)
         return res.json({
-            message: 'Succesfully remooved',
+            message: 'Пользователь успешно удалено с курса',
         })
     } catch (error) {
         console.log(error)

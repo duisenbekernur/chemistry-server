@@ -13,7 +13,7 @@ const getAllCourses = async (req, res) => {
             res.json({ message: 'Курсов пока нету' })
         }
 
-        res.json(courses)
+        res.json({courses})
     } catch (error) {
         console.log(error)
     }
@@ -52,7 +52,7 @@ const deleteCourse = async (req, res) => {
 
         await CourseModel.destroy({ where: { id: req.params.id } })
 
-        res.json('Курс успешно удалено')
+        res.json({ message: 'Курс успешно удалено' })
     } catch (error) {
         console.log('Ошибка удалении курса', error)
     }

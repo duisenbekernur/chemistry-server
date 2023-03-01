@@ -60,6 +60,10 @@ const QuestionModel = sequelize.define('questions', {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
     },
+    answerIds: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        allowNull: false,
+    },
 })
 
 const VideoModel = sequelize.define('videos', {
