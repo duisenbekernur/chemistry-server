@@ -9,7 +9,9 @@ const createQuestion = async (req, res) => {
             return res.json({ message: 'Введите вопрос' })
         }
 
-        const isExists = await QuestionModel.findOne({ where: { question } })
+        const isExists = await QuestionModel.findOne({
+            where: { question, videoId },
+        })
         if (isExists)
             return res.json({ message: 'Такой вопрос уже существует' })
 

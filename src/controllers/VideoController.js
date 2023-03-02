@@ -1,31 +1,30 @@
 const { UserModel, CourseModel, VideoModel } = require('../models/Models.js')
 const path = require('path')
-const { Storage } = require('@google-cloud/storage')
 const fs = require('fs')
+const ytdl = require('ytdl-core')
 const utf = require('utf8')
-const { Readable } = require('stream')
 require('dotenv').config()
 
-const storage = new Storage({
-    keyFilename: path.join(
-        __dirname,
-        '../../just-sunrise-377710-7233ba47ace4.json'
-    ),
-    projectId: 'just-sunrise-377710',
-})
+function isYouTubeLink(link) {
+    var youtubeRegex = /^(https?\:\/\/)/
+    return youtubeRegex.test(link)
+}
 
 const uploadVideo = async (req, res) => {
     try {
-        console.log('HERE', req.file)
-        if (!req.file) {
+        const { link } = req.body
+
+        console.log(link)
+
+        if (!isYouTubeLink(link)) {
             return res.json({
-                message: 'Видео не прикреплен!',
+                message: 'Неправильный адресс видео',
                 code: 401,
             })
         }
 
         const isExist = await VideoModel.findOne({
-            where: { name: req.file.originalname },
+            where: { link },
         })
         if (isExist) {
             return res.json({
@@ -34,44 +33,16 @@ const uploadVideo = async (req, res) => {
             })
         }
 
-        const chemistryCourse = storage.bucket('chemistry-course')
-        let { size, originalname } = req.file
-        originalname = utf.decode(originalname)
-        const file = chemistryCourse.file(originalname)
-        const readableStream = new Readable({
-            read(size) {
-                this.push(req.file.buffer)
-                this.push(null)
-            },
+        const metInfo = await ytdl.getInfo(link)
+        const name = metInfo.player_response.videoDetails.title
+
+        console.log('metinfo', name)
+
+        const video = await VideoModel.create({
+            link,
+            name,
         })
 
-        // // signed link of video
-        // const options = {
-        //     version: 'v4',
-        //     action: 'read',
-        //     expires: Date.now() + 100000, // 10 sec from now
-        // }
-        // const signedUrl = null
-        // chemistryCourse.file(originalname).getSignedUrl(options, (err, url) => {
-        //     if (err) {
-        //         console.log(err)
-        //         return
-        //     }
-        //     console.log(`signed url = ${url}`)
-        // })
-
-        const uploadStream = file.createWriteStream()
-        readableStream.pipe(uploadStream)
-        uploadStream.on('finish', async () => {
-            const video = await VideoModel.create({
-                link: 'no',
-                name: originalname,
-                size,
-            })
-        })
-        uploadStream.on('error', (error) => {
-            console.log('storage послал тебя нахуй', error)
-        })
         res.json({
             message: 'Видео успешно загружено',
             code: 200,
@@ -99,6 +70,12 @@ const addVideoToCourse = async (req, res) => {
                 message: 'Курс не найден',
             })
         }
+        const isExists = await VideoModel.findOne({
+            where: { id: videoId, courseId },
+        })
+        if (isExists) {
+            return res.json({ message: 'Видео уже существует в этом курсе' })
+        }
 
         const videoModel = await VideoModel.findOne({
             where: {
@@ -106,20 +83,20 @@ const addVideoToCourse = async (req, res) => {
             },
         })
 
-        console.log(videoModel)
         if (!videoModel) {
             return res.json({
-                message: 'Video not found',
+                message: 'Видео не найдено',
             })
         }
         await courseModel.addVideo(videoModel)
         return res.json({
-            message: 'Succesfully added',
+            message: 'Успешно добавлено',
             code: 201,
+            video: videoModel,
         })
     } catch (error) {
         res.json({
-            message: 'Error occured with adding video to this course',
+            message: 'Error occured with adding video to this course' + error,
             error,
         })
     }
@@ -185,10 +162,7 @@ const deleteVideo = async (req, res) => {
                 code: 402,
             })
         }
-        const name = video.name
-        const myBucket = storage.bucket('chemistry-course')
-        const file = myBucket.file(name)
-        await file.delete()
+
         await video.destroy()
         res.json({
             message: 'Видео успешно удалено',
@@ -196,6 +170,25 @@ const deleteVideo = async (req, res) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+const deleteVideoFromCourse = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        VideoModel.update(
+            {
+                courseId: null,
+            },
+            {
+                where: {
+                    id,
+                },
+            }
+        )
+
+        res.json({ message: 'Видео успешно удалено с курса!' })
+    } catch (error) {}
 }
 
 const getAllVideos = async (req, res) => {
@@ -241,46 +234,6 @@ const getVideo = async (req, res) => {
     } catch (error) {}
 }
 
-const addAccessToStorage = async (req, res) => {
-    try {
-        const chemistryCourse = storage.bucket('chemistry-course')
-
-        console.log(chemistryCourse.iam.getPolicy)
-        return
-
-        chemistryCourse.iam.getPolicy((err, policy) => {
-            if (err) {
-                console.error(`Error getting bucket IAM policy: ${err}`)
-                return
-            }
-
-            // Create a new binding for the new user's email address
-            const role = 'roles/storage.objectViewer' // Viewer access
-            const members = [`user:${req.body.name}`]
-            const newBinding = { role, members }
-
-            // Add the new binding to the existing IAM policy
-            policy.bindings.push(newBinding)
-
-            // Update the bucket IAM policy with the new binding
-            storage
-                .bucket(bucketName)
-                .iam.setPolicy(policy, (err, updatedPolicy) => {
-                    if (err) {
-                        console.error(`Error setting bucket IAM policy: ${err}`)
-                        return
-                    }
-
-                    console.log(
-                        `Added user ${req.body.name} to bucket ${bucketName} with viewer access.`
-                    )
-                })
-        })
-    } catch (error) {
-        console.log('logged error', error)
-    }
-}
-
 module.exports = {
     addVideoToCourse,
     getVideosOfCourse,
@@ -288,5 +241,5 @@ module.exports = {
     deleteVideo,
     getVideoContent,
     getAllVideos,
-    addAccessToStorage,
+    deleteVideoFromCourse,
 }
