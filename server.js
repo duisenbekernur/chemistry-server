@@ -19,9 +19,9 @@ app.use('/api/admin', AdminRoutes)
 app.use('/api/user', UserRoutes)
 app.use('/api/course', CourseRoutes)
 
-    // ;(async () => {
-    //     await sequelize.sync({ force: true })
-    //     console.log('Tables have been created')
-    // })()
+;(async () => {
+    await sequelize.sync({ force: true })
+    console.log('Tables have been created')
+})()
 
 app.listen(port, () => console.log('App started'))

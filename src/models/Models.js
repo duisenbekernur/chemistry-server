@@ -1,4 +1,4 @@
-const { DataTypes, ARRAY } = require('sequelize')
+const { DataTypes, ARRAY, JSON } = require('sequelize')
 const sequelize = require('../utils/db.js')
 
 const CourseModel = sequelize.define('courses', {
@@ -86,6 +86,30 @@ const VideoModel = sequelize.define('videos', {
     },
 })
 
+const PassedQuestions = sequelize.define('PassedQuestions', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    videoId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    userAnswers: {
+        type: DataTypes.JSON,
+    },
+    answerIds: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        allowNull: false,
+    },
+    videoName: { type: DataTypes.STRING, allowNull: false },
+})
+
 UserModel.belongsToMany(CourseModel, { through: UserCourse })
 CourseModel.belongsToMany(UserModel, { through: UserCourse })
 
@@ -101,4 +125,5 @@ module.exports = {
     UserModel,
     QuestionModel,
     VideoModel,
+    PassedQuestions,
 }

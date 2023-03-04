@@ -41,7 +41,7 @@ router.delete('/users/:id', checkAuth, isAdmin, deleteUser)
 router.get('/getUsersByCourse/:id', checkAuth, isAdmin, getUsersByCourse)
 
 router.post('/uploadVideo', checkAuth, isAdmin, uploadVideo)
-router.get('/videos', checkAuth, isAdmin, getAllVideos)
+router.get('/videos', checkAuth, getAllVideos)
 router.get('/getVideo/:id', checkAuth, getVideoContent)
 router.delete('/deleteVideo/:id', checkAuth, isAdmin, deleteVideo)
 

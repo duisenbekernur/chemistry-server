@@ -1,4 +1,4 @@
-const { QuestionModel } = require('../models/Models.js')
+const { QuestionModel, PassedQuestions } = require('../models/Models.js')
 require('dotenv').config()
 
 const createQuestion = async (req, res) => {
@@ -60,4 +60,34 @@ const deleteQuestionOfVideo = async (req, res) => {
     }
 }
 
-module.exports = { createQuestion, getQuestionsOfVideo, deleteQuestionOfVideo }
+const addPassedQuestion = async (req, res) => {
+    try {
+        const params = req.body
+
+        const passedQuestion = await PassedQuestions.create(params)
+
+        res.json(passedQuestion)
+    } catch (error) {
+        console.log('eror', error)
+    }
+}
+
+const getPassedQuestionsOfUser = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const questions = await PassedQuestions.findAll({
+            where: { userId: id },
+        })
+
+        return res.json(questions)
+    } catch (error) {}
+}
+
+module.exports = {
+    createQuestion,
+    getQuestionsOfVideo,
+    deleteQuestionOfVideo,
+    addPassedQuestion,
+    getPassedQuestionsOfUser,
+}
