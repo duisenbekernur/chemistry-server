@@ -32,7 +32,7 @@ const loginUser = async (req, res) => {
                 },
                 { where: { name: name }, returning: true, plain: true }
             ).then(async (result) => {
-                // console.log(result[1].devices)
+                console.log('geeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', result)
                 if (result[1].devices.length > 2) {
                     await UserModel.destroy({
                         where: {
@@ -45,6 +45,8 @@ const loginUser = async (req, res) => {
                 }
             })
         }
+
+        console.log('USER', user, user.devices.length)
 
         if (!user.devices) {
             deviceArr.push(req.body.ip)
