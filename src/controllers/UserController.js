@@ -46,7 +46,7 @@ const loginUser = async (req, res) => {
             })
         }
 
-        console.log('USER', user, user.devices.length)
+        console.log('USER', user)
 
         if (!user.devices) {
             deviceArr.push(req.body.ip)
