@@ -36,6 +36,10 @@ const UserModel = sequelize.define('users', {
         allowNull: true,
         defaultValue: false,
     },
+    devices: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true,
+    },
 })
 
 const UserCourse = sequelize.define('UserCourse', {

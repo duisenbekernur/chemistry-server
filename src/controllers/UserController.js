@@ -1,6 +1,7 @@
 const { UserModel, UserCourse } = require('../models/Models.js')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+const ip = require('ip')
 
 const loginUser = async (req, res) => {
     try {
@@ -15,6 +16,48 @@ const loginUser = async (req, res) => {
 
         if (!user) {
             return res.json('Ошибка данных')
+        }
+
+        const ipv4 = ip.address()
+
+        const deviceArr = []
+        if (user.devices && !user.devices.includes(ipv4) && !user.isAdmin) {
+            deviceArr.push(ipv4)
+            for (let i = 0; i < user.devices.length; i++) {
+                deviceArr.push(user.devices[i])
+            }
+            await UserModel.update(
+                {
+                    devices: deviceArr,
+                },
+                { where: { name: name }, returning: true, plain: true }
+            ).then(async (result) => {
+                // console.log(result[1].devices)
+                if (result[1].devices.length > 2) {
+                    await UserModel.destroy({
+                        where: {
+                            id: user.id,
+                        },
+                    })
+                    return res.json({
+                        message: 'Аккаунт удален',
+                    })
+                }
+            })
+        }
+
+        if (!user.devices) {
+            deviceArr.push(req.body.ip)
+            await UserModel.update(
+                {
+                    devices: deviceArr,
+                },
+                {
+                    where: { name, password },
+                    returning: true,
+                    plain: true,
+                }
+            )
         }
 
         const token = jwt.sign(
@@ -32,6 +75,7 @@ const loginUser = async (req, res) => {
         })
     } catch (error) {
         console.log('Ошибка при логин', error)
+        res.json({ message: 'Ошибка сервера' })
     }
 }
 
