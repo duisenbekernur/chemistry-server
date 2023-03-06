@@ -21,30 +21,29 @@ const loginUser = async (req, res) => {
         const ipv4 = ip.address()
 
         const deviceArr = []
-        if (user.devices && !user.devices.includes(ipv4) && !user.isAdmin) {
-            deviceArr.push(ipv4)
-            for (let i = 0; i < user.devices.length; i++) {
-                deviceArr.push(user.devices[i])
-            }
-            await UserModel.update(
-                {
-                    devices: deviceArr,
-                },
-                { where: { name: name }, returning: true, plain: true }
-            ).then(async (result) => {
-                console.log('geeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', result)
-                if (result[1].devices.length > 2) {
-                    await UserModel.destroy({
-                        where: {
-                            id: user.id,
-                        },
-                    })
-                    return res.json({
-                        message: 'Аккаунт удален',
-                    })
-                }
-            })
-        }
+        // if (user.devices && !user.devices.includes(ipv4) && !user.isAdmin) {
+        //     deviceArr.push(ipv4)
+        //     for (let i = 0; i < user.devices.length; i++) {
+        //         deviceArr.push(user.devices[i])
+        //     }
+        //     await UserModel.update(
+        //         {
+        //             devices: deviceArr,
+        //         },
+        //         { where: { name: name }, returning: true, plain: true }
+        //     ).then(async (result) => {
+        //         if (result[1].devices.length > 1) {
+        //             await UserModel.destroy({
+        //                 where: {
+        //                     id: user.id,
+        //                 },
+        //             })
+        //             return res.json({
+        //                 message: 'Аккаунт удален',
+        //             })
+        //         }
+        //     })
+        // }
 
         console.log('USER', user)
 
