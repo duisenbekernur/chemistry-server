@@ -16,9 +16,9 @@ app.get('/', (req, res) => {
 app.use(cors())
 
 app.use(express.json())
-app.use('/api/admin', AdminRoutes)
-app.use('/api/user', UserRoutes)
-app.use('/api/course', CourseRoutes)
+app.use('/node-api/admin', AdminRoutes)
+app.use('/node-api/user', UserRoutes)
+app.use('/node-api/course', CourseRoutes)
 
 // ;(async () => {
 //     await sequelize.sync({ force: true })
