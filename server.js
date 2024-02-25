@@ -6,6 +6,7 @@ const sequelize = require('./src/utils/db.js')
 const mongo = require('./src/utils/mongodb.js')
 const cors = require('cors')
 const https = require("https");
+const fs = require("fs");
 const port = 8000
 
 const app = express()
