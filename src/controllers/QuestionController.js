@@ -1,88 +1,89 @@
-const { QuestionModel, PassedQuestions } = require('../models/Models.js')
-require('dotenv').config()
+const { QuestionModel, PassedQuestionsModel } = require('../models/MongoModels');
+require('dotenv').config();
 
 const createQuestion = async (req, res) => {
     try {
-        const { question, answers, videoId, answerIds } = req.body
+        const { question, answers, videoId, answerIds } = req.body;
 
         if (!question) {
-            return res.json({ message: 'Введите вопрос' })
+            return res.json({ message: 'Enter a question' });
         }
 
-        const isExists = await QuestionModel.findOne({
-            where: { question, videoId },
-        })
-        if (isExists)
-            return res.json({ message: 'Такой вопрос уже существует' })
+        const isExists = await QuestionModel.findOne({ question, videoId });
 
-        const test = await QuestionModel.create({
+        if (isExists) {
+            return res.json({ message: 'Question already exists' });
+        }
+
+        const newQuestion = await QuestionModel.create({
             question,
             answers,
             videoId,
             answerIds,
-        })
+        });
 
-        return res.json({ message: 'Вопрос добавлен', test })
+        return res.json({ message: 'Question added', question: newQuestion });
     } catch (error) {
-        console.log('Ошибка при добавлении вопроса', error)
+        console.error('Error while adding a question', error);
+        res.json({ message: 'Server error' });
     }
-}
+};
 
 const getQuestionsOfVideo = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.params;
 
-        const questions = await QuestionModel.findAll({
-            where: { videoId: id },
-        })
+        const questions = await QuestionModel.find({ videoId: id });
 
-        return res.json(questions)
-    } catch (error) {}
-}
+        return res.json(questions);
+    } catch (error) {
+        console.error(error);
+        res.json({ message: 'Server error' });
+    }
+};
 
 const deleteQuestionOfVideo = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.params;
 
-        const question = await QuestionModel.findOne({
-            where: { id },
-        })
+        const question = await QuestionModel.findByIdAndDelete(id);
 
         if (!question) {
-            return res.json({ message: 'Такой вопрос не существует' })
+            return res.json({ message: 'Question does not exist' });
         }
 
-        await question.destroy()
-
-        return res.json({ message: 'Успешно удалено', question })
+        return res.json({ message: 'Successfully deleted', question });
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        res.json({ message: 'Server error' });
     }
-}
+};
 
 const addPassedQuestion = async (req, res) => {
     try {
-        const params = req.body
+        const params = req.body;
 
-        const passedQuestion = await PassedQuestions.create(params)
+        const passedQuestion = await PassedQuestionsModel.create(params);
 
-        res.json(passedQuestion)
+        res.json(passedQuestion);
     } catch (error) {
-        console.log('eror', error)
+        console.error('Error while adding passed question', error);
+        res.json({ message: 'Server error' });
     }
-}
+};
 
 const getPassedQuestionsOfUser = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.params;
 
-        const questions = await PassedQuestions.findAll({
-            where: { userId: id },
-        })
+        const questions = await PassedQuestionsModel.find({ userId: id });
 
-        return res.json(questions)
-    } catch (error) {}
-}
+        return res.json(questions);
+    } catch (error) {
+        console.error(error);
+        res.json({ message: 'Server error' });
+    }
+};
 
 module.exports = {
     createQuestion,
@@ -90,4 +91,4 @@ module.exports = {
     deleteQuestionOfVideo,
     addPassedQuestion,
     getPassedQuestionsOfUser,
-}
+};

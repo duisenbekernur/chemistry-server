@@ -6,9 +6,9 @@ const sequelize = new Sequelize(
     process.env.DB_USER,
     process.env.DB_PASSWORD,
     {
-        host: 'containers-us-west-24.railway.app',
+        host: 'localhost',
         dialect: 'postgres',
-        port: '5947',
+        port: '5432',
     }
 )
 

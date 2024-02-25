@@ -3,6 +3,7 @@ const AdminRoutes = require('./src/routes/AdminRouter.js')
 const UserRoutes = require('./src/routes/UserRouter.js')
 const CourseRoutes = require('./src/routes/CourseRouter.js')
 const sequelize = require('./src/utils/db.js')
+const mongo = require('./src/utils/mongodb.js')
 const cors = require('cors')
 const port = 8000
 
