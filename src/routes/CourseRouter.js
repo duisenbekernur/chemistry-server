@@ -9,7 +9,7 @@ const isAdmin = require('../middlewares/isAdmin.js')
 
 const router = Router()
 
-router.get('/', checkAuth, isAdmin, getAllCourses)
+router.get('/', getAllCourses)
 router.post('/create', checkAuth, isAdmin, createCourse)
 router.delete('/delete/:id', checkAuth, isAdmin, deleteCourse)
 
