@@ -10,26 +10,26 @@ const fs = require("fs");
 const port = 8000
 
 const app = express()
-const server = https.createServer(
-    {
-        key: fs.readFileSync(
-            "/etc/letsencrypt/archive/ems-app.kz/privkey1.pem",
-            "utf8"
-        ),
-        cert: fs.readFileSync(
-            "/etc/letsencrypt/archive/ems-app.kz/cert1.pem",
-            "utf8"
-        ),
-    },
-    app
-);
+// const server = https.createServer(
+//     {
+//         key: fs.readFileSync(
+//             "/etc/letsencrypt/archive/ems-app.kz/privkey1.pem",
+//             "utf8"
+//         ),
+//         cert: fs.readFileSync(
+//             "/etc/letsencrypt/archive/ems-app.kz/cert1.pem",
+//             "utf8"
+//         ),
+//     },
+//     app
+// );
 
-app.get('/', (req, res) => {
+app.get('/node-api', (req, res) => {
     res.send('Hello')
 })
 
 app.use(cors({
-    origin: '*',
+    origin: true,
 }));
 
 
@@ -43,4 +43,4 @@ app.use('/node-api/course', CourseRoutes)
 //     console.log('Tables have been created')
 // })()
 
-server.listen(port, () => console.log('App started'))
+app.listen(port, () => console.log('App started'))
